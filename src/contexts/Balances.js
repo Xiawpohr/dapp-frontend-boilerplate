@@ -5,12 +5,10 @@ import React, {
   useMemo,
   useCallback,
   useEffect,
-  useState,
 } from 'react'
 
 import { useWeb3ReadOnly } from './Web3ReadOnly'
 import { useBlockNumber } from './Application'
-import { useAllBondDetails } from './Bonds'
 import { safeAccess, isAddress, getTokenBalance } from '../utils'
 import BigNumber from 'bignumber.js'
 
@@ -146,69 +144,4 @@ export function useTokenBalance(tokenAddress, address) {
   ])
 
   return value
-}
-
-export function useAllBondBalances(address) {
-  const { chainId, library } = useWeb3ReadOnly()
-  const globalBlockNumber = useBlockNumber()
-
-  const allBonds = useAllBondDetails()
-  const [state, { updateAll }] = useBalancesContext()
-  const allBalances = safeAccess(state, [chainId, address]) || {}
-
-  const getData = async () => {
-    if (library && address) {
-      const newBalances = {}
-      await Promise.all(
-        Object.keys(allBonds).map(async tokenAddress => {
-          if (isAddress(tokenAddress)) {
-            const balance = await getTokenBalance(
-              tokenAddress,
-              address,
-              library,
-            )
-            return (newBalances[tokenAddress] = {
-              value: new BigNumber(balance),
-              blockNumber: globalBlockNumber,
-            })
-          }
-        }),
-      )
-      updateAll(chainId, address, newBalances)
-    }
-  }
-  useMemo(getData, [address, globalBlockNumber])
-
-  return allBalances
-}
-
-export function useEtherBalance(address) {
-  const { library } = useWeb3ReadOnly()
-  const globalBlockNumber = useBlockNumber()
-
-  const [balance, setBalance] = useState()
-
-  useEffect(() => {
-    let stale = false
-    if (address && isAddress(address) && library && globalBlockNumber) {
-      library.eth
-        .getBalance(address)
-        .then(result => {
-          if (!stale) {
-            setBalance(new BigNumber(result))
-          }
-        })
-        .catch(() => {
-          if (!stale) {
-            setBalance()
-          }
-        })
-    }
-
-    return () => {
-      stale = true
-    }
-  }, [address, library, globalBlockNumber])
-
-  return balance
 }

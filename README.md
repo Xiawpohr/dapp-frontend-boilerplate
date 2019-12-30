@@ -1,3 +1,7 @@
+## Troubleshooting
+
+- [scrypt issues](https://github.com/trufflesuite/ganache-cli/issues/204#issuecomment-262956174)
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

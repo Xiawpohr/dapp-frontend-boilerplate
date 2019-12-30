@@ -1,5 +1,5 @@
 import React from 'react'
-import { useBlockNumber } from '../contexts/application'
+import { useBlockNumber } from '../contexts/Application'
 
 export default function Home() {
   const blockNumber = useBlockNumber()

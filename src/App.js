@@ -6,10 +6,10 @@ import Web3 from 'web3'
 import Web3ReadOnlyContextProvider from './contexts/Web3ReadOnly'
 import ApplicationContextProvider, {
   Updater as ApplicationContextUpdater,
-} from './contexts/application'
+} from './contexts/Application'
 import TransactionContextProvider, {
   Updater as TransactionContextUpdater,
-} from './contexts/transaction'
+} from './contexts/Transactions'
 import BalancesContextProvider from './contexts/Balances'
 import AllowancesContextProvider from './contexts/Allowances'
 import Home from './pages/Home'

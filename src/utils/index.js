@@ -3,7 +3,6 @@ import { ethers } from 'ethers'
 import BigNumber from 'bignumber.js'
 
 import ERC20_ABI from '../constants/abis/erc20.json'
-import { ReferralWhiteList } from '../constants'
 
 export function safeAccess(object, path) {
   return object
@@ -28,10 +27,6 @@ export function parseQueryString(queryString) {
     query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '')
   }
   return query
-}
-
-export function getReferralAddress(name) {
-  return ReferralWhiteList[name]
 }
 
 export function isAddress(address) {

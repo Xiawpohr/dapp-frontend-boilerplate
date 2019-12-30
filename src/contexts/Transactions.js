@@ -8,7 +8,7 @@ import React, {
 } from 'react'
 import { useWeb3Context } from 'web3-react'
 import { safeAccess } from '../utils'
-import { useBlockNumber } from './application'
+import { useBlockNumber } from './Application'
 
 const RESPONSE = 'response'
 const CUSTOM_DATA = 'CUSTOM_DATA'
