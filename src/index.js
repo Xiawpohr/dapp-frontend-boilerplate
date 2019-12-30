@@ -1,7 +1,22 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
+import ReactGA from 'react-ga'
+import { createBrowserHistory } from 'history'
 import App from './App'
 import * as serviceWorker from './serviceWorker'
+import './i18n'
+
+if (process.env.NODE_ENV === 'production') {
+  ReactGA.initialize(process.env.REACT_APP_GA_TOKEN)
+} else {
+  ReactGA.initialize('test', { testMode: true })
+}
+
+const history = createBrowserHistory()
+history.listen(location => {
+  ReactGA.set({ page: location.pathname })
+  ReactGA.pageview(location.pathname)
+})
 
 ReactDOM.render(<App />, document.getElementById('root'))
 

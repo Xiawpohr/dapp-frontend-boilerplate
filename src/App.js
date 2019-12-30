@@ -1,30 +1,35 @@
-import React from 'react'
-import Web3Provider from 'web3-react'
+import React, { Suspense } from 'react'
+import { BrowserRouter, Switch, Route } from 'react-router-dom'
+import { Web3ReactProvider } from '@web3-react/core'
 import Web3 from 'web3'
+
+import Web3ReadOnlyContextProvider from './contexts/Web3ReadOnly'
 import ApplicationContextProvider, {
   Updater as ApplicationContextUpdater,
 } from './contexts/application'
 import TransactionContextProvider, {
   Updater as TransactionContextUpdater,
 } from './contexts/transaction'
-import Web3Manager from './components/Web3Manager'
+import BalancesContextProvider from './contexts/Balances'
+import AllowancesContextProvider from './contexts/Allowances'
 import Home from './pages/Home'
-import NetworkOnlyConnector from './connectors/NetworkOnlyConnector'
-import InjectedConnector from './connectors/InjectedConnector'
+import ThemeProvider, { GlobalStyle } from './themes'
 
-const Network = new NetworkOnlyConnector({
-  providerURL: process.env.REACT_APP_NETWORK_URL || '',
-})
-const Injected = new InjectedConnector({
-  supportedNetworks: [Number(process.env.REACT_APP_NETWORK_ID || '1')],
-})
-const connectors = { Injected, Network }
+function getLibrary(provider) {
+  return new Web3(provider)
+}
 
 function ContextProviders({ children }) {
   return (
-    <ApplicationContextProvider>
-      <TransactionContextProvider>{children}</TransactionContextProvider>
-    </ApplicationContextProvider>
+    <Web3ReadOnlyContextProvider>
+      <ApplicationContextProvider>
+        <TransactionContextProvider>
+          <BalancesContextProvider>
+            <AllowancesContextProvider>{children}</AllowancesContextProvider>
+          </BalancesContextProvider>
+        </TransactionContextProvider>
+      </ApplicationContextProvider>
+    </Web3ReadOnlyContextProvider>
   )
 }
 
@@ -37,16 +42,29 @@ function Updaters() {
   )
 }
 
+function Router() {
+  return (
+    <Suspense fallback={null}>
+      <BrowserRouter>
+        <Switch>
+          <Route path='/' component={Home} />
+        </Switch>
+      </BrowserRouter>
+    </Suspense>
+  )
+}
+
 function App() {
   return (
-    <Web3Provider connectors={connectors} libraryName='web3.js' web3Api={Web3}>
+    <Web3ReactProvider getLibrary={getLibrary}>
       <ContextProviders>
         <Updaters />
-        <Web3Manager>
-          <Home />
-        </Web3Manager>
+        <ThemeProvider>
+          <GlobalStyle />
+          <Router />
+        </ThemeProvider>
       </ContextProviders>
-    </Web3Provider>
+    </Web3ReactProvider>
   )
 }
 

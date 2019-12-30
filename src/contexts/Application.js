@@ -6,7 +6,8 @@ import React, {
   useCallback,
   useEffect,
 } from 'react'
-import { useWeb3Context } from 'web3-react'
+import { ethers } from 'ethers'
+import { useWeb3ReadOnly } from './Web3ReadOnly'
 import { safeAccess } from '../utils'
 
 const BLOCK_NUMBER = 'BLOCK_NUMBER'
@@ -25,12 +26,12 @@ const initialState = {
 function reducer(state, { type, payload }) {
   switch (type) {
     case UPDATE_BLOCK_NUMBER: {
-      const { networkId, blockNumber } = payload
+      const { chainId, blockNumber } = payload
       return {
         ...state,
         [BLOCK_NUMBER]: {
           ...(safeAccess(state, [BLOCK_NUMBER]) || {}),
-          [networkId]: blockNumber,
+          [chainId]: blockNumber,
         },
       }
     }
@@ -45,8 +46,8 @@ function reducer(state, { type, payload }) {
 export default function Provider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState)
 
-  const updateBlockNumber = useCallback((networkId, blockNumber) => {
-    dispatch({ type: UPDATE_BLOCK_NUMBER, payload: { networkId, blockNumber } })
+  const updateBlockNumber = useCallback((chainId, blockNumber) => {
+    dispatch({ type: UPDATE_BLOCK_NUMBER, payload: { chainId, blockNumber } })
   }, [])
 
   const value = useMemo(() => [state, { updateBlockNumber }], [
@@ -62,7 +63,7 @@ export default function Provider({ children }) {
 }
 
 export function Updater() {
-  const { networkId, library } = useWeb3Context()
+  const { chainId, library } = useWeb3ReadOnly()
   const [, { updateBlockNumber }] = useApplicationContext()
 
   useEffect(() => {
@@ -73,34 +74,37 @@ export function Updater() {
           .getBlockNumber()
           .then(blockNumber => {
             if (!stale) {
-              updateBlockNumber(networkId, blockNumber)
+              updateBlockNumber(chainId, blockNumber)
             }
           })
           .catch(() => {
             if (!stale) {
-              updateBlockNumber(networkId, null)
+              updateBlockNumber(chainId, null)
             }
           })
       }
 
       update()
-      const subscription = library.eth.subscribe('newBlockHeaders')
-      subscription.on('data', update)
+      const ethersLibrary = new ethers.providers.JsonRpcProvider(
+        library.currentProvider.host,
+      )
+      ethersLibrary.pollingInterval = 8000
+      ethersLibrary.on('block', update)
 
       return () => {
         stale = true
-        subscription.unsubscribe()
+        ethersLibrary.removeListener('block', update)
       }
     }
-  }, [networkId, library, updateBlockNumber])
+  }, [chainId, library, updateBlockNumber])
 
   return null
 }
 
 export function useBlockNumber() {
-  const { networkId } = useWeb3Context()
+  const { chainId } = useWeb3ReadOnly()
 
   const [state] = useApplicationContext()
 
-  return safeAccess(state, [BLOCK_NUMBER, networkId])
+  return safeAccess(state, [BLOCK_NUMBER, chainId])
 }
