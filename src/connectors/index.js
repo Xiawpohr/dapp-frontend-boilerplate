@@ -11,11 +11,11 @@ const RPC_URLS = {
 }
 
 export const injected = new InjectedConnector({
-  supportedChainIds: [1, 4],
+  supportedChainIds: [1, 2, 4],
 })
 
 export const network = new NetworkConnector({
-  urls: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
+  urls: { 1: RPC_URLS[1], 2: RPC_URLS[2], 4: RPC_URLS[4] },
   defaultChainId: 1,
   pollingInterval: POLLING_INTERVAL,
 })
@@ -30,7 +30,7 @@ export const walletconnect = new WalletConnectConnector({
 export const getNetworkWithSigner = privateKey => {
   return new NetworkWithSignerConnector({
     privateKey,
-    urls: { 1: RPC_URLS[1], 4: RPC_URLS[4] },
+    urls: { 1: RPC_URLS[1], 2: RPC_URLS[2], 4: RPC_URLS[4] },
     defaultChainId: 1,
     pollingInterval: POLLING_INTERVAL,
   })

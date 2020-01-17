@@ -6,11 +6,11 @@ import React, {
   useCallback,
   useEffect,
 } from 'react'
-
-import { useWeb3ReadOnly } from './Web3ReadOnly'
+import BigNumber from 'bignumber.js'
+import { useWeb3React } from '@web3-react/core'
 import { useBlockNumber } from './Application'
 import { safeAccess, isAddress, getTokenBalance } from '../utils'
-import BigNumber from 'bignumber.js'
+import { READ_ONLY } from '../constants'
 
 const UPDATE = 'UPDATE'
 const UPDATE_ALL = 'UPDATE_ALL'
@@ -94,7 +94,7 @@ export default function Provider({ children }) {
 }
 
 export function useTokenBalance(tokenAddress, address) {
-  const { chainId, library } = useWeb3ReadOnly()
+  const { chainId, library } = useWeb3React(READ_ONLY)
 
   const globalBlockNumber = useBlockNumber()
 

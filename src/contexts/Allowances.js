@@ -14,6 +14,7 @@ import BigNumber from 'bignumber.js'
 import { useBlockNumber } from './Application'
 import { useContract, useGasPrice } from '../hooks/ethereum'
 import { safeAccess, isAddress, getTokenAllowance } from '../utils'
+import { READ_ONLY } from '../constants'
 import ERC20_ABI from '../constants/abis/erc20.json'
 
 const UPDATE = 'UPDATE'
@@ -90,7 +91,7 @@ export default function Provider({ children }) {
 }
 
 export function useTokenAllowance(tokenAddress, address, spenderAddress) {
-  const { chainId, library } = useWeb3React()
+  const { chainId, library } = useWeb3React(READ_ONLY)
 
   const globalBlockNumber = useBlockNumber()
 
